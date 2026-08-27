@@ -4,37 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Product extends Model
 {
-    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'tenant_id',
         'outlet_id',
-        'role_id',
-        'full_name',
-        'email',
-        'password',
-        'phone',
+        'category_id',
+        'name',
+        'image',
+        'barcode',
+        'base_price',
+        'is_special',
         'is_active',
-    ];
-
-    protected $hidden = [
-        'password',
-        'remember_token',
     ];
 
     protected function casts(): array
     {
         return [
-            'password' => 'hashed',
+            'base_price' => 'decimal:2',
+            'is_special' => 'boolean',
             'is_active' => 'boolean',
+            'created_at' => 'datetime',
         ];
     }
 
@@ -48,8 +47,13 @@ class User extends Authenticatable
         return $this->belongsTo(Outlet::class);
     }
 
-    public function role(): BelongsTo
+    public function category(): BelongsTo
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Category::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 }
