@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\OrderLineController;
+use App\Http\Controllers\Api\OutletController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TransactionController;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 // Public Authentication & Business Owner Registration
 Route::post('/auth/register-owner', [AuthController::class, 'registerOwner']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/verify-reset-token', [AuthController::class, 'verifyResetToken']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 // Protected Authenticated Routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -26,6 +30,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // RBAC Roles & Permissions
     Route::post('/roles/{id}/restore', [RoleController::class, 'restore']);
     Route::apiResource('roles', RoleController::class);
+
+    // Outlets (Owner-only for CUD)
+    Route::post('/outlets/{id}/restore', [OutletController::class, 'restore']);
+    Route::apiResource('outlets', OutletController::class);
 });
 
 // Categories
