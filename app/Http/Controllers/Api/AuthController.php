@@ -58,6 +58,67 @@ class AuthController extends Controller
     }
 
     /**
+     * Send password reset link email.
+     */
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email',
+        ]);
+
+        $result = $this->authService->sendPasswordResetLink($validated['email']);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Link reset kata sandi telah berhasil dikirimkan ke email Anda. Silakan periksa email Anda untuk mengonfirmasi.',
+        ]);
+    }
+
+    /**
+     * Verify password reset token validity.
+     */
+    public function verifyResetToken(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email',
+            'token' => 'required|string',
+        ]);
+
+        $isValid = $this->authService->verifyResetToken($validated['email'], $validated['token']);
+
+        if (! $isValid) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tautan reset kata sandi tidak valid atau telah kadaluarsa. Silakan minta tautan baru.',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Token valid.',
+        ]);
+    }
+
+    /**
+     * Reset password with token.
+     */
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'email' => 'required|string|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $this->authService->resetPassword($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kata sandi Anda berhasil diperbarui. Silakan masuk menggunakan kata sandi baru.',
+        ]);
+    }
+
+    /**
      * Revoke current access token (Logout).
      */
     public function logout(Request $request): JsonResponse
