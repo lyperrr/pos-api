@@ -25,11 +25,16 @@ class AuthService
         }
 
         return DB::transaction(function () use ($data) {
-            // 1. Create Tenant
+            // 1. Create Tenant with Trial & Subscription defaults
             $tenant = Tenant::create([
                 'business_name' => $data['business_name'],
                 'business_type' => $data['business_type'] ?? 'retail',
-                'subscription_status' => 'active',
+                'subscription_status' => 'trial',
+                'subscription_plan' => $data['subscription_plan'] ?? 'starter',
+                'billing_cycle' => $data['billing_cycle'] ?? 'monthly',
+                'trial_ends_at' => now()->addDays(14),
+                'max_outlets' => 1,
+                'max_users' => 3,
             ]);
 
             // 2. Create Default Main Outlet
